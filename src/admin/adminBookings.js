@@ -21,15 +21,15 @@ adminBookingsRouter.get('/:id', async (req, res) => {
     res.json(booking);
 });
 
-adminBookingsRouter.patch('/:id', async (req, res) => {
-    const id = req.params.id;
-    const [updatedRowsCount, updatedRows] = await BookingsModel.update(req.body, {
-        where: { id : id},
-        returning: true,
-    });
-    if(updatedRowsCount>0)      res.json(updatedRows[0]);
-    else                        res.status(404).json({error: "Bus Not Found"});
-});
+// adminBookingsRouter.patch('/:id', async (req, res) => {
+//     const id = req.params.id;
+//     const [updatedRowsCount, updatedRows] = await BookingsModel.update(req.body, {
+//         where: { id : id},
+//         returning: true,
+//     });
+//     if(updatedRowsCount>0)      res.json(updatedRows[0]);
+//     else                        res.status(404).json({error: "Bus Not Found"});
+// });
 
 adminBookingsRouter.delete('/:id', async (req, res)=> {
     const id = req.params.id;

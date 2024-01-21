@@ -159,10 +159,6 @@ StopModel.init({
     extraCost: {
         type: DataTypes.FLOAT,
         allowNull: false,
-    },
-    isAvailable: {
-        type: DataTypes.BOOLEAN,
-        allowNull: false,
     }
 },
 {
@@ -229,6 +225,34 @@ BookingsModel.init({
     tableName: 'bookings'
 });
 
+class BookedStopsModel extends Model {}
+
+BookedStopsModel.init({
+    id: {
+        type: DataTypes.UUID,
+        defaultValue: UUIDV4,
+        primaryKey: true,
+        allowNull: false,
+    },
+    stopId: {
+        type: DataTypes.UUID,
+        references: {
+            model: StopModel,
+            key: 'id',
+        },
+        allowNull: false,
+    },
+    date: {
+        type: DataTypes.DATE,
+        allowNull: false,
+    }
+},
+{
+    sequelize,
+    modelName: "BookedStops",
+    tableName: "bookedStops"
+});
+
 BookingsModel.belongsTo(StopModel, {
     foreignKey: 'fromStop',
     as: 'start'
@@ -239,6 +263,5 @@ BookingsModel.belongsTo(StopModel, {
     as: 'end'
 });
 
-
 // await sequelize.sync({force: true});
-export  {sequelize, UserModel, BookingsModel, BusModel, StopModel, LocationModel};
+export  {sequelize, UserModel, BookingsModel, BusModel, StopModel, LocationModel, BookedStopsModel};

@@ -1,17 +1,81 @@
-import { BusModel, StopModel, BookingsModel } from "../db/db.providers.js";
+import { BusModel, StopModel, BookingsModel, BookedStopsModel } from "../db/db.providers.js";
+import { timeStringToSeconds } from "../../utils/timeToSeconds.js";
+import { dijkstra } from "../../utils/dijkstra.js";
 
-async function getBuses(startLoc, endLoc, startTime, orderBy) {
+async function getBuses(startLoc, endLoc, date, startTime) {
     /* Array of All the Stops(Used to run Dijkstra).
     Id, Location, busId, arrivalTime, departureTime, extraCost, isAvailable.*/
-    const data = await StopModel.findAll();           
+    date = new Date(date);
+    const dayIndex = date.getDay();
+
+    // fetching the buses and the stops 
+    const allBuses = await BusModel.findAll();
+    const stops = await StopModel.findAll(); 
+    
+    // fetching booked stops
+    const bookedData = await BookedStopsModel.findAll({
+        where: { date: date },
+        attributes: ['stopId'],
+    });    
+    bookedData = bookedData.map((data)=> data.stopId);    
+
     //Bucket the data by busId and availability.
     //Also take the buses as input (join). Useful for startTime.
     //Sort the buckets by arrivalTime.
     //Find arrivalTime+startTime(convert time to integer): integer.
     //Use this info to construct a graph between the locations (Adjacency List).
+    const stopList = {};
+    const startTimes = {};
+    const locations = {};
+    const bookedStopIds = {};
+
+    // buses( bus.id => (stops it will have, time at which it starts))
+    for(const bus of allBuses) {
+        if(bus.operationDays & (1 << dayIndex))  {
+            stopList[bus.id] = [];
+            startTimes[bus.id] = timeStringToSeconds(bus.startTime);
+        }    
+    }
+
+    // hash the stops that are booked
+    for(const stop of bookedData) {
+        bookedStopIds[stop] = 1;
+    }
+
+    // iterate through all stops if the stop is not in hashmap then add it to the respective bus's stoplist
+    for(const stop of stops) {
+        if(!bookedStopIds[stop.id]) {
+            if(stopList[stop.busId])       stopList[stop.busId].push(stop);
+        }
+    }
+
+ 
+    for(const bus in stopList) {
+        // sort the stops for each bus w.r.t arrivalTimes
+        stopList[bus].sort((a, b) => {
+            const timeA = new Date(a.arrivalTime);
+            const timeB = new Date(b.arrivalTime);
+            return timeA - timeB;
+        });
+        const extra = startTimes[bus];
+        
+        // locations (locationId => (list of neighboring locations))
+        for(let i=0;i<stopList[bus].length-1;i++) {
+            const loc = stopList[bus][i].location;
+            if(!locations[loc]) {
+                locations[loc] = [];
+            }
+            locations[loc].push([
+                stopList[bus][i+1].departureTime + extra,
+                stopList[bus][i+1].location, 
+                stopList[bus][i+1].arrivalTime + extra
+            ]);
+        }
+    }
+
     //Find all the locations then add edges between them and also set the edge weights dynamically( you know the arrival time at next location ).
     //Now construct a priority queue and run the dijkstra algorithm.
-    return data;
+    return dijkstra(locations, startLoc, endLoc, timeStringToSeconds(startTime), 20);
 };
 
 async function busAvailable(date, startTime, endTime, busId) {
@@ -63,9 +127,6 @@ async function busAvailable(date, startTime, endTime, busId) {
             }
         }
     }
-
-    // console.log(seatsMap);
-
     return ans;
 };
 

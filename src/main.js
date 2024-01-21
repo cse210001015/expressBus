@@ -5,6 +5,7 @@ import { adminLocationsRouter } from './admin/adminLocations.js';
 import { adminStopsRouter } from './admin/adminStops.js';
 import { adminUsersRouter } from './admin/adminUsers.js';
 import { adminBookingsRouter } from './admin/adminBookings.js';
+import { userBusRouter } from './user/userBus.js';
 
 const app = express();
 const port = 3000;
@@ -21,7 +22,10 @@ app.use('/admin/locations', adminLocationsRouter);
 app.use('/admin/users', adminUsersRouter);
 app.use('/admin/stops', adminStopsRouter);
 app.use('/admin/bookings', adminBookingsRouter);
+app.use('/user/bus', userBusRouter);
 
 app.listen(port , () => {
     console.log(`Server is running on port: ${port}`);
 });
+
+//Change Admin Bookings, User Bookings Add user Update and Authentication and Authorization.

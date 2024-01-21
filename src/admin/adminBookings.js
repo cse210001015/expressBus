@@ -12,7 +12,7 @@ adminBookingsRouter.get('/', async (req, res) => {
 
 adminBookingsRouter.post('/', async (req, res) => {
     const newBooking = await BookingsModel.create(req.body);
-    res.json(bookings);
+    res.json(newBooking);
 });
 
 adminBookingsRouter.get('/:id', async (req, res) => {

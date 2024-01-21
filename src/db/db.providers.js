@@ -159,6 +159,10 @@ StopModel.init({
     extraCost: {
         type: DataTypes.FLOAT,
         allowNull: false,
+    },
+    isAvailable: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
     }
 },
 {
@@ -223,6 +227,16 @@ BookingsModel.init({
     sequelize,
     modelName: "Bookings",
     tableName: 'bookings'
+});
+
+BookingsModel.belongsTo(StopModel, {
+    foreignKey: 'fromStop',
+    as: 'start'
+});
+
+BookingsModel.belongsTo(StopModel, {
+    foreignKey: 'toStop',
+    as: 'end'
 });
 
 

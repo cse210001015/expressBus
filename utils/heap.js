@@ -33,7 +33,7 @@ class MinHeap {
   
       while (currentIndex > 0) {
         const parentIndex = Math.floor((currentIndex - 1) / 2);
-        if (this.heap[currentIndex].distance < this.heap[parentIndex].distance) {
+        if (this.heap[currentIndex].time < this.heap[parentIndex].time) {
           [this.heap[currentIndex], this.heap[parentIndex]] = [this.heap[parentIndex], this.heap[currentIndex]];
           currentIndex = parentIndex;
         } else {
@@ -54,11 +54,11 @@ class MinHeap {
           smallerChildIndex = leftChildIndex;
         }
   
-        if (rightChildIndex < this.heap.length && this.heap[rightChildIndex].distance < this.heap[leftChildIndex].distance) {
+        if (rightChildIndex < this.heap.length && this.heap[rightChildIndex].time < this.heap[leftChildIndex].time) {
           smallerChildIndex = rightChildIndex;
         }
   
-        if (smallerChildIndex !== null && this.heap[smallerChildIndex].distance < this.heap[currentIndex].distance) {
+        if (smallerChildIndex !== null && this.heap[smallerChildIndex].time < this.heap[currentIndex].time) {
           [this.heap[currentIndex], this.heap[smallerChildIndex]] = [this.heap[smallerChildIndex], this.heap[currentIndex]];
           currentIndex = smallerChildIndex;
         } else {
